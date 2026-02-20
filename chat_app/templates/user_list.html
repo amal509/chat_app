@@ -1,0 +1,70 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat App</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: Arial, sans-serif; background: #f0f2f5; }
+        .header { background: #0084ff; color: white; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { font-size: 1.2rem; }
+        .header a { color: white; text-decoration: none; font-size: 0.9rem; background: rgba(255,255,255,0.2); padding: 0.4rem 0.8rem; border-radius: 4px; }
+        .container { max-width: 600px; margin: 2rem auto; padding: 0 1rem; }
+        h2 { color: #333; margin-bottom: 1rem; }
+        .user-item { background: white; border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 0.6rem; display: flex; align-items: center; text-decoration: none; color: inherit; box-shadow: 0 1px 4px rgba(0,0,0,0.08); transition: box-shadow 0.2s; }
+        .user-item:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+        .avatar-wrap { position: relative; margin-right: 1rem; flex-shrink: 0; }
+        .avatar { width: 42px; height: 42px; border-radius: 50%; background: #0084ff; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.1rem; }
+        .status-dot { position: absolute; bottom: 1px; right: 1px; width: 12px; height: 12px; border-radius: 50%; background: #ccc; border: 2px solid white; }
+        .status-dot.online { background: #31a24c; }
+        .user-info { flex: 1; }
+        .user-name { font-weight: bold; color: #333; }
+        .user-email { font-size: 0.85rem; color: #888; }
+        .empty { text-align: center; color: #888; margin-top: 3rem; }
+        .right-meta { display: flex; align-items: center; flex-shrink: 0; }
+        .unread-badge { background: #25d366; color: white; font-size: 0.72rem; font-weight: bold; min-width: 20px; height: 20px; border-radius: 10px; display: flex; align-items: center; justify-content: center; padding: 0 5px; }
+        .user-last-seen { font-size: 0.8rem; color: #888; }
+    </style>
+</head>
+<body>
+<div class="header">
+    <h1>Chat App</h1>
+    <a href="{% url 'logout' %}">Logout</a>
+</div>
+<div class="container">
+    <h1 style="margin-bottom: 1rem; text-align: center;">People You May Know</h1>
+    {% if users %}
+        {% for user in users %}
+        <a href="{% url 'chat' user.id %}" class="user-item">
+            <div class="avatar-wrap">
+                <div class="avatar">{{ user.username|first|upper }}</div>
+                <span class="status-dot {% if user.is_online %}online{% endif %}" data-user-id="{{ user.id }}"></span>
+            </div>
+            <div class="user-info">
+                <div class="user-name">{{ user.username }}</div>
+                <div class="user-last-seen"
+                     data-user-id="{{ user.id }}"
+                     data-is-online="{% if user.is_online %}true{% else %}false{% endif %}"
+                     data-last-seen-iso="{% if user.last_seen %}{{ user.last_seen.isoformat }}{% endif %}">
+                    {{ user.last_seen_display }}
+                </div>
+            </div>
+            <div class="right-meta">
+                {% if user.unread_count > 0 %}
+                <span class="unread-badge" data-user-id="{{ user.id }}">{{ user.unread_count_display }}</span>
+                {% else %}
+                <span class="unread-badge" data-user-id="{{ user.id }}" style="display:none">0</span>
+                {% endif %}
+            </div>
+        </a>
+        {% endfor %}
+    {% else %}
+        <div class="empty">No other users yet.</div>
+    {% endif %}
+</div>
+<script src="{% static 'js/utils.js' %}"></script>
+<script src="{% static 'js/user_list.js' %}"></script>
+</body>
+</html>
